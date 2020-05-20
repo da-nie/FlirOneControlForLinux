@@ -7,7 +7,9 @@
 #include "cdecorator_scale.h"
 #include "system.h"
 #include "tga.h"
+#include "clanguage.h"
 #include <vector>
+
 
 //****************************************************************************************************
 //глобальные переменные
@@ -30,8 +32,7 @@
 //----------------------------------------------------------------------------------------------------
 CMainWindow::CMainWindow(QWidget *parent):QMainWindow(parent),ui(new Ui::CMainWindow)
 {
- ui->setupUi(this);
- setWindowTitle(tr("Управление тепловизором flir One"));
+ ui->setupUi(this); 
  cLabel_ImageArea_ThermalImage_Ptr=new CLabel_ImageArea(IMAGE_VIEW_WIDTH,IMAGE_VIEW_HEIGHT,ui->CLabel_ThermalImage);
  cLabel_ImageArea_VideoImage_Ptr=new CLabel_ImageArea(CFlirOneReceiver::VIDEO_WIDTH,CFlirOneReceiver::VIDEO_HEIGHT,ui->CLabel_VideoImage);
 
@@ -49,11 +50,11 @@ CMainWindow::CMainWindow(QWidget *parent):QMainWindow(parent),ui(new Ui::CMainWi
 
  iImage_VideoPtr=new CPicture;
  iImage_VideoPtr->SetSize(CFlirOneReceiver::VIDEO_WIDTH,CFlirOneReceiver::VIDEO_HEIGHT);
- iImage_VideoPtr=new CDecorator_Scale(iImage_VideoPtr,CFlirOneReceiver::VIDEO_WIDTH,CFlirOneReceiver::VIDEO_HEIGHT);
+ //iImage_VideoPtr=new CDecorator_Scale(iImage_VideoPtr,CFlirOneReceiver::VIDEO_WIDTH,CFlirOneReceiver::VIDEO_HEIGHT);
 
  iImage_ViewPtr=new CPicture;
  iImage_ViewPtr->SetSize(IMAGE_VIEW_WIDTH,IMAGE_VIEW_HEIGHT);
- iImage_ViewPtr=new CDecorator_Scale(iImage_ViewPtr,IMAGE_VIEW_WIDTH,IMAGE_VIEW_HEIGHT);
+ //iImage_ViewPtr=new CDecorator_Scale(iImage_ViewPtr,IMAGE_VIEW_WIDTH,IMAGE_VIEW_HEIGHT);
 
  cFlirOneControl.LoadColorMap("./Palette/iron.pal");//загружаем палитру
 
@@ -69,30 +70,21 @@ CMainWindow::CMainWindow(QWidget *parent):QMainWindow(parent),ui(new Ui::CMainWi
  SetState(SaveAllFrame,ui->pushButton_SaveAllFrame,false);
  SetState(SaveImageNoScale,ui->pushButton_SaveImageNoScale,false);
  SetState(SaveImageCross,ui->pushButton_SaveImageCross,false);
- SetState(SaveRAW,ui->pushButton_SaveRAW,false);
- SetState(SaveVideo,ui->pushButton_SaveVideo,false);
- SetState(ShowVideo,ui->pushButton_ShowVideo,false);
+ SetState(SaveRAW,ui->pushButton_SaveRAW,true);
+ SetState(SaveVideo,ui->pushButton_SaveVideo,true);
+ SetState(ShowVideo,ui->pushButton_ShowVideo,true);
+ cFlirOneControl.SetShowVideo(ShowVideo);
 
- //ищем палитры
- ui->comboBox_Palette->clear();
- std::vector<std::string> vector_file_name;
- std::vector<std::string> vector_file_name_without_path;
- CreateFileList("./Palette",vector_file_name,vector_file_name_without_path);
- vector_PaletteFileName.clear();
- static const size_t MIN_FILE_NAME_SIZE=4;//минимальная длина имени файла
- for(size_t n=0;n<vector_file_name.size();n++)
- {
-  std::string &file_name=vector_file_name[n];
-  size_t length=file_name.length();
-  if (length<MIN_FILE_NAME_SIZE) continue;
-  if (file_name[length-1]!='l' && file_name[length-1]!='L') continue;
-  if (file_name[length-2]!='a' && file_name[length-1]!='A') continue;
-  if (file_name[length-3]!='p' && file_name[length-1]!='P') continue;
-  if (file_name[length-4]!='.') continue;
-  vector_PaletteFileName.push_back(file_name);
-  ui->comboBox_Palette->addItem(vector_file_name_without_path[n].c_str());
- }
- if (vector_file_name.size()>0) ui->comboBox_Palette->setCurrentIndex(0);
+ AlarmMaxTemperCounter=ALARM_MAX_TEMPER_COUNTER_MAX_VALUE;
+ AlarmMinTemperCounter=ALARM_MIN_TEMPER_COUNTER_MAX_VALUE;
+
+ FindPalette();
+
+ ui->comboBox_Language->addItem("Selected English language");
+ ui->comboBox_Language->addItem("Выбран русский язык");
+ ui->comboBox_Language->setCurrentIndex(0);
+
+ ApplyLanguage();
 
  //подключим таймер обновления экрана
  TimerId=startTimer(TIMER_INTERVAL_MS);
@@ -118,17 +110,7 @@ CMainWindow::~CMainWindow()
 //----------------------------------------------------------------------------------------------------
 void CMainWindow::timerEvent(QTimerEvent *qTimerEvent_Ptr)
 {
- static const float T_MAX_INITIAL_VALUE=-10000;//начальное значение для максимальной температуры
- static const float T_MIN_INITIAL_VALUE=10000;//начальное значение для минимальной температуры
- static const float T_MIN_VALID_VALUE=-999;//минимальное допустимое значение температуры
- static const float T_MAX_VALID_VALUE=999;//максимальное допустимое значение температуры
-
  if (qTimerEvent_Ptr->timerId()!=TimerId) return;
- int32_t x;
- int32_t y;
- //считываем температуру болометров и коэффициент излучения
- TempReflected=ui->doubleSpinBox_Temperature->value();
- Emissivity=ui->doubleSpinBox_Emission->value();
  //копируем изображение
  uint32_t index;
  //получаем тепловое изображение
@@ -139,119 +121,198 @@ void CMainWindow::timerEvent(QTimerEvent *qTimerEvent_Ptr)
  cFlirOneControl.CopyVideoImage(VideoImage,index);
  if (LastReceivedFrameIndex!=index)//изображение изменилось
  {
-  //копируем кадр видео
-  iImage_VideoPtr->SetRGBAImage(CFlirOneReceiver::VIDEO_WIDTH,CFlirOneReceiver::VIDEO_HEIGHT,VideoImage);
-  //копируем изображение
-  uint32_t *v1_ptr=&ViewImage[0];
-  uint32_t *v2_ptr=&ColorImage[0];
-  for(y=0;y<CFlirOneReceiver::IMAGE_HEIGHT;y++,v1_ptr+=IMAGE_VIEW_WIDTH,v2_ptr+=CFlirOneReceiver::IMAGE_WIDTH)
+  NewFrame();
+  LastReceivedFrameIndex=index;
+ }
+}
+
+//----------------------------------------------------------------------------------------------------
+//новый кадр
+//----------------------------------------------------------------------------------------------------
+void CMainWindow::NewFrame(void)
+{
+ static const float T_MAX_INITIAL_VALUE=-10000;//начальное значение для максимальной температуры
+ static const float T_MIN_INITIAL_VALUE=10000;//начальное значение для минимальной температуры
+ static const float T_MIN_VALID_VALUE=-999;//минимальное допустимое значение температуры
+ static const float T_MAX_VALID_VALUE=999;//максимальное допустимое значение температуры
+
+ //считываем температуру болометров и коэффициент излучения
+ TempReflected=ui->doubleSpinBox_Temperature->value();
+ Emissivity=ui->doubleSpinBox_Emission->value();
+
+ //копируем кадр видео
+ iImage_VideoPtr->SetRGBAImage(CFlirOneReceiver::VIDEO_WIDTH,CFlirOneReceiver::VIDEO_HEIGHT,VideoImage);
+ //копируем изображение
+ uint32_t *v1_ptr=&ViewImage[0];
+ uint32_t *v2_ptr=&ColorImage[0];
+ for(int32_t y=0;y<CFlirOneReceiver::IMAGE_HEIGHT;y++,v1_ptr+=IMAGE_VIEW_WIDTH,v2_ptr+=CFlirOneReceiver::IMAGE_WIDTH)
+ {
+  uint32_t *v1_ptr_local=v1_ptr;
+  uint32_t *v2_ptr_local=v2_ptr;
+  for(int32_t x=0;x<CFlirOneReceiver::IMAGE_WIDTH;x++,v1_ptr_local++,v2_ptr_local++) *v1_ptr_local=*v2_ptr_local;
+ }
+ //очищаем места для максимальной и минимальной температуры
+ cGraphics.SolidFill(CFlirOneReceiver::IMAGE_WIDTH+2,CFlirOneReceiver::IMAGE_HEIGHT-CGraphics::FONT_HEIGHT*2-2-4,IMAGE_VIEW_WIDTH-(CFlirOneReceiver::IMAGE_WIDTH+2),CGraphics::FONT_HEIGHT*2+4,COLOR_BLACK);
+ cGraphics.SolidFill(CFlirOneReceiver::IMAGE_WIDTH+2,2,IMAGE_VIEW_WIDTH-(CFlirOneReceiver::IMAGE_WIDTH+2),CGraphics::FONT_HEIGHT,COLOR_BLACK);
+ //рисуем градиентную шкалу
+ uint32_t scale_height=IMAGE_VIEW_HEIGHT-8-CGraphics::FONT_HEIGHT*3-4;
+ float c_index=CFlirOneReceiver::MAX_COLOR_INDEX;
+ float dc_index=static_cast<float>(CFlirOneReceiver::MAX_COLOR_INDEX)/static_cast<float>(scale_height);
+ v1_ptr=&ViewImage[0]+(4+CGraphics::FONT_HEIGHT)*IMAGE_VIEW_WIDTH+CFlirOneReceiver::IMAGE_WIDTH+2;
+ uint8_t R[CFlirOneReceiver::COLOR_MAP_UNIT];
+ uint8_t G[CFlirOneReceiver::COLOR_MAP_UNIT];
+ uint8_t B[CFlirOneReceiver::COLOR_MAP_UNIT];
+ cFlirOneControl.CopyColorMap(R,G,B,CFlirOneReceiver::COLOR_MAP_UNIT);
+ for(int32_t y=0;y<scale_height;y++,v1_ptr+=IMAGE_VIEW_WIDTH,c_index-=dc_index)
+ {
+  uint32_t index=static_cast<uint32_t>(c_index);
+  uint32_t color=0;
+  color|=0xff;
+  color<<=8;
+  color|=R[index];
+  color<<=8;
+  color|=G[index];
+  color<<=8;
+  color|=B[index];
+  uint32_t *v1_ptr_local=v1_ptr;
+  for(int32_t x=0;x<IMAGE_VIEW_WIDTH-CFlirOneReceiver::IMAGE_WIDTH-4;x++,v1_ptr_local++) *v1_ptr_local=color;
+ }
+ //считаем температуру по кадру
+ char string[STRING_BUFFER_SIZE];
+ double t_max=T_MAX_INITIAL_VALUE;
+ double t_min=T_MIN_INITIAL_VALUE;
+ double t=0;
+ long point=0;//количество точек
+ uint16_t *t_ptr=&ThermalImage[0];
+ float *tmr_ptr=&TemperatureImage[0];
+ uint32_t *v_ptr=&ViewImage[0];
+ for(int32_t y=0;y<CFlirOneReceiver::IMAGE_HEIGHT;y++,v_ptr+=IMAGE_VIEW_WIDTH)
+ {
+  uint32_t *v_ptr_local=v_ptr;
+  for(int32_t x=0;x<CFlirOneReceiver::IMAGE_WIDTH;x++,t_ptr++,v_ptr_local++,tmr_ptr++)
   {
-   uint32_t *v1_ptr_local=v1_ptr;
-   uint32_t *v2_ptr_local=v2_ptr;
-   for(x=0;x<CFlirOneReceiver::IMAGE_WIDTH;x++,v1_ptr_local++,v2_ptr_local++) *v1_ptr_local=*v2_ptr_local;
-  }
-  //очищаем места для максимальной и минимальной температуры
-  cGraphics.SolidFill(CFlirOneReceiver::IMAGE_WIDTH+2,CFlirOneReceiver::IMAGE_HEIGHT-CGraphics::FONT_HEIGHT*2-2-4,IMAGE_VIEW_WIDTH-(CFlirOneReceiver::IMAGE_WIDTH+2),CGraphics::FONT_HEIGHT*2+4,COLOR_BLACK);
-  cGraphics.SolidFill(CFlirOneReceiver::IMAGE_WIDTH+2,2,IMAGE_VIEW_WIDTH-(CFlirOneReceiver::IMAGE_WIDTH+2),CGraphics::FONT_HEIGHT,COLOR_BLACK);
-  //рисуем градиентную шкалу
-  uint32_t scale_height=IMAGE_VIEW_HEIGHT-8-CGraphics::FONT_HEIGHT*3-4;
-  float c_index=CFlirOneReceiver::MAX_COLOR_INDEX;
-  float dc_index=static_cast<float>(CFlirOneReceiver::MAX_COLOR_INDEX)/static_cast<float>(scale_height);
-  v1_ptr=&ViewImage[0]+(4+CGraphics::FONT_HEIGHT)*IMAGE_VIEW_WIDTH+CFlirOneReceiver::IMAGE_WIDTH+2;
-  uint8_t R[CFlirOneReceiver::COLOR_MAP_UNIT];
-  uint8_t G[CFlirOneReceiver::COLOR_MAP_UNIT];
-  uint8_t B[CFlirOneReceiver::COLOR_MAP_UNIT];
-  cFlirOneControl.CopyColorMap(R,G,B,CFlirOneReceiver::COLOR_MAP_UNIT);
-  for(y=0;y<scale_height;y++,v1_ptr+=IMAGE_VIEW_WIDTH,c_index-=dc_index)
-  {
-   uint32_t index=static_cast<uint32_t>(c_index);
-   uint32_t color=0;
-   color|=0xff;
-   color<<=8;
-   color|=R[index];
-   color<<=8;
-   color|=G[index];
-   color<<=8;
-   color|=B[index];
-   uint32_t *v1_ptr_local=v1_ptr;
-   for(x=0;x<IMAGE_VIEW_WIDTH-CFlirOneReceiver::IMAGE_WIDTH-4;x++,v1_ptr_local++) *v1_ptr_local=color;
-  }
-  //считаем температуру по кадру
-  char string[STRING_BUFFER_SIZE];
-  double t_max=T_MAX_INITIAL_VALUE;
-  double t_min=T_MIN_INITIAL_VALUE;
-  double t=0;
-  long point=0;//количество точек
-  uint16_t *t_ptr=&ThermalImage[0];
-  float *tmr_ptr=&TemperatureImage[0];
-  uint32_t *v_ptr=&ViewImage[0];
-  for(y=0;y<CFlirOneReceiver::IMAGE_HEIGHT;y++,v_ptr+=IMAGE_VIEW_WIDTH)
-  {
-   uint32_t *v_ptr_local=v_ptr;
-   for(x=0;x<CFlirOneReceiver::IMAGE_WIDTH;x++,t_ptr++,v_ptr_local++,tmr_ptr++)
+   //вычисляем температуру
+   double pt;//температура в точке
+   *tmr_ptr=T_MAX_INITIAL_VALUE;
+   if (GetTemperature(*t_ptr,pt)==false) continue;//ошибка вычисления температуры
+   *tmr_ptr=pt;
+   if (pt>t_max) t_max=pt;
+   if (pt<t_min) t_min=pt;
+   if (x>=CFlirOneReceiver::IMAGE_WIDTH/2-FRAME_SIZE && x<=CFlirOneReceiver::IMAGE_WIDTH/2+FRAME_SIZE)
    {
-    //вычисляем температуру
-    double pt;//температура в точке
-    *tmr_ptr=T_MAX_INITIAL_VALUE;
-    if (GetTemperature(*t_ptr,pt)==false) continue;//ошибка вычисления температуры
-    *tmr_ptr=pt;
-    if (pt>t_max) t_max=pt;
-    if (pt<t_min) t_min=pt;
-    if (x>=CFlirOneReceiver::IMAGE_WIDTH/2-FRAME_SIZE && x<=CFlirOneReceiver::IMAGE_WIDTH/2+FRAME_SIZE)
+    if (y>=CFlirOneReceiver::IMAGE_HEIGHT/2-FRAME_SIZE && y<=CFlirOneReceiver::IMAGE_HEIGHT/2+FRAME_SIZE)
     {
-     if (y>=CFlirOneReceiver::IMAGE_HEIGHT/2-FRAME_SIZE && y<=CFlirOneReceiver::IMAGE_HEIGHT/2+FRAME_SIZE)
-     {
-      point++;
-      t+=pt;
-     }
+     point++;
+     t+=pt;
     }
    }
   }
-  if (point!=0)
+ }
+ if (point!=0)
+ {
+  t/=static_cast<double>(point);
+  //выводим температуру
+  if (t>=T_MIN_VALID_VALUE && t<=T_MAX_VALID_VALUE)
   {
-   t/=static_cast<double>(point);
-   //выводим температуру
-   if (t>=T_MIN_VALID_VALUE && t<=T_MAX_VALID_VALUE)
+   snprintf(string,STRING_BUFFER_SIZE,"%.1f!",t);
+   cGraphics.PutString(CFlirOneReceiver::IMAGE_WIDTH+2,IMAGE_VIEW_HEIGHT-CGraphics::FONT_HEIGHT-2,string,COLOR_WHITE);
+  }
+ }
+ bool alarm_save_frame=false;
+ //выводим минимальную температуру
+ if (t_min>=T_MIN_VALID_VALUE && t_min<=T_MAX_VALID_VALUE)
+ {
+  snprintf(string,STRING_BUFFER_SIZE,"%.1f!",t_min);
+  cGraphics.PutString(CFlirOneReceiver::IMAGE_WIDTH+2,IMAGE_VIEW_HEIGHT-CGraphics::FONT_HEIGHT*2-2-4,string,COLOR_WHITE);
+  if (MinTemperControl(t_min)==true)
+  {
+   if (AlarmMinTemperCounter>0) AlarmMinTemperCounter--;
+   if (AlarmMinTemperCounter==0)
    {
-    snprintf(string,STRING_BUFFER_SIZE,"%.1f!",t);
-    cGraphics.PutString(CFlirOneReceiver::IMAGE_WIDTH+2,IMAGE_VIEW_HEIGHT-CGraphics::FONT_HEIGHT-2,string,COLOR_WHITE);
+    if (ui->checkBox_AlarmSaveFrame->isChecked()==true) alarm_save_frame=true;
    }
   }
-  //выводим минимальную температуру
-  if (t_min>=T_MIN_VALID_VALUE && t_min<=T_MAX_VALID_VALUE)
-  {
-   snprintf(string,STRING_BUFFER_SIZE,"%.1f!",t_min);
-   cGraphics.PutString(CFlirOneReceiver::IMAGE_WIDTH+2,IMAGE_VIEW_HEIGHT-CGraphics::FONT_HEIGHT*2-2-4,string,COLOR_WHITE);
-  }
-  //выводим максимальную температуру
-  if (t_max>=T_MIN_VALID_VALUE && t_max<=T_MAX_VALID_VALUE)
-  {
-   snprintf(string,STRING_BUFFER_SIZE,"%.1f!",t_max);
-   cGraphics.PutString(CFlirOneReceiver::IMAGE_WIDTH+2,2,string,COLOR_WHITE);
-  }
-  if (SaveImageCross==false) SaveViewImage=ViewImage;
-  //рисуем рамку  
-  uint32_t *v_ptr_horizontal=&ViewImage[0]+(IMAGE_VIEW_HEIGHT/2-FRAME_SIZE)*IMAGE_VIEW_WIDTH+CFlirOneReceiver::IMAGE_WIDTH/2-FRAME_SIZE;
-  uint32_t *v_ptr_vertical=v_ptr_horizontal;
-  for(long n=0;n<=FRAME_SIZE*2;n++,v_ptr_horizontal++,v_ptr_vertical+=IMAGE_VIEW_WIDTH)
-  {
-   *v_ptr_horizontal^=COLOR_WHITE;
-   *(v_ptr_horizontal+FRAME_SIZE*2*IMAGE_VIEW_WIDTH)^=COLOR_WHITE;
-   if (v_ptr_horizontal==v_ptr_vertical) continue;
-   if (v_ptr_horizontal+FRAME_SIZE*2*IMAGE_VIEW_WIDTH==v_ptr_vertical+FRAME_SIZE*2) continue;
-   *v_ptr_vertical^=COLOR_WHITE;
-   *(v_ptr_vertical+FRAME_SIZE*2)^=COLOR_WHITE;
-  }
-  if (SaveImageCross==true) SaveViewImage=ViewImage;
-  if (SaveAllFrame==true) on_pushButton_SaveFrame_clicked();//сохраняем кадр
-  //копируем изображение
-  iImage_ViewPtr->SetRGBAImage(IMAGE_VIEW_WIDTH,IMAGE_VIEW_HEIGHT,ViewImage);
-  LastReceivedFrameIndex=index;
-
-  cLabel_ImageArea_ThermalImage_Ptr->Redraw(&ViewImage[0]);
-  cLabel_ImageArea_VideoImage_Ptr->Redraw(&VideoImage[0]);
-  update();
+  else AlarmMinTemperCounter=ALARM_MIN_TEMPER_COUNTER_MAX_VALUE;
  }
+ //выводим максимальную температуру
+ if (t_max>=T_MIN_VALID_VALUE && t_max<=T_MAX_VALID_VALUE)
+ {
+  snprintf(string,STRING_BUFFER_SIZE,"%.1f!",t_max);
+  cGraphics.PutString(CFlirOneReceiver::IMAGE_WIDTH+2,2,string,COLOR_WHITE);
+  if (MaxTemperControl(t_max)==true)
+  {
+   if (AlarmMaxTemperCounter>0) AlarmMaxTemperCounter--;
+   if (AlarmMaxTemperCounter==0)
+   {
+    if (ui->checkBox_AlarmSaveFrame->isChecked()==true) alarm_save_frame=true;
+   }
+  }
+  else AlarmMaxTemperCounter=ALARM_MAX_TEMPER_COUNTER_MAX_VALUE;
+ }
+ if (SaveImageCross==false) SaveViewImage=ViewImage;
+ //рисуем рамку
+ uint32_t *v_ptr_horizontal=&ViewImage[0]+(IMAGE_VIEW_HEIGHT/2-FRAME_SIZE)*IMAGE_VIEW_WIDTH+CFlirOneReceiver::IMAGE_WIDTH/2-FRAME_SIZE;
+ uint32_t *v_ptr_vertical=v_ptr_horizontal;
+ for(int32_t n=0;n<=FRAME_SIZE*2;n++,v_ptr_horizontal++,v_ptr_vertical+=IMAGE_VIEW_WIDTH)
+ {
+  *v_ptr_horizontal^=COLOR_WHITE;
+  *(v_ptr_horizontal+FRAME_SIZE*2*IMAGE_VIEW_WIDTH)^=COLOR_WHITE;
+  if (v_ptr_horizontal==v_ptr_vertical) continue;
+  if (v_ptr_horizontal+FRAME_SIZE*2*IMAGE_VIEW_WIDTH==v_ptr_vertical+FRAME_SIZE*2) continue;
+  *v_ptr_vertical^=COLOR_WHITE;
+  *(v_ptr_vertical+FRAME_SIZE*2)^=COLOR_WHITE;
+ }
+ if (SaveImageCross==true) SaveViewImage=ViewImage;
+ if (SaveAllFrame==true || alarm_save_frame==true) on_pushButton_SaveFrame_clicked();//сохраняем кадр
+ //копируем изображение
+ iImage_ViewPtr->SetRGBAImage(IMAGE_VIEW_WIDTH,IMAGE_VIEW_HEIGHT,ViewImage);
+ //обновляем изображения
+ cLabel_ImageArea_ThermalImage_Ptr->Redraw(&ViewImage[0]);
+ cLabel_ImageArea_VideoImage_Ptr->Redraw(&VideoImage[0]);
+ update();
+}
+//----------------------------------------------------------------------------------------------------
+//контроль минимальной температуры
+//----------------------------------------------------------------------------------------------------
+bool CMainWindow::MinTemperControl(float t)
+{
+ float min_t=ui->doubleSpinBox_MinT->value();
+ if (t<=min_t) return(true);
+ return(false);
+}
+//----------------------------------------------------------------------------------------------------
+//контроль максимальной температуры
+//----------------------------------------------------------------------------------------------------
+bool CMainWindow::MaxTemperControl(float t)
+{
+ float max_t=ui->doubleSpinBox_MaxT->value();
+ if (t>=max_t) return(true);
+ return(false);
+}
+//----------------------------------------------------------------------------------------------------
+//поиск палитр
+//----------------------------------------------------------------------------------------------------
+void CMainWindow::FindPalette(void)
+{
+ ui->comboBox_Palette->clear();
+ std::vector<std::string> vector_file_name;
+ std::vector<std::string> vector_file_name_without_path;
+ CreateFileList("./Palette",vector_file_name,vector_file_name_without_path);
+ vector_PaletteFileName.clear();
+ static const size_t MIN_FILE_NAME_SIZE=4;//минимальная длина имени файла
+ for(size_t n=0;n<vector_file_name.size();n++)
+ {
+  std::string &file_name=vector_file_name[n];
+  size_t length=file_name.length();
+  if (length<MIN_FILE_NAME_SIZE) continue;
+  if (file_name[length-1]!='l' && file_name[length-1]!='L') continue;
+  if (file_name[length-2]!='a' && file_name[length-1]!='A') continue;
+  if (file_name[length-3]!='p' && file_name[length-1]!='P') continue;
+  if (file_name[length-4]!='.') continue;
+  vector_PaletteFileName.push_back(file_name);
+  ui->comboBox_Palette->addItem(vector_file_name_without_path[n].c_str());
+ }
+ if (vector_file_name.size()>0) ui->comboBox_Palette->setCurrentIndex(0);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -274,7 +335,7 @@ void CMainWindow::ChangeState(bool &state,QWidget *qWidget_Ptr)
 }
 
 //----------------------------------------------------------------------------------------------------
-//задать состояние кнопки
+//задать состояние кнопки и флага
 //----------------------------------------------------------------------------------------------------
 void CMainWindow::SetState(bool &state,QWidget *qWidget_Ptr,bool set_state)
 {
@@ -410,6 +471,30 @@ void CMainWindow::SaveThermalImage(void)
  }
 }
 
+//---------------------------------------------------------------------------
+//применить выбранный язык
+//---------------------------------------------------------------------------
+void CMainWindow::ApplyLanguage(void)
+{
+ setWindowTitle(tr(CLanguage::GetPtr()->GetTextPtr()->WindowTitle().c_str()));
+ ui->checkBox_AlarmSaveFrame->setText(tr(CLanguage::GetPtr()->GetTextPtr()->CheckBox_SaveFrame().c_str()));
+ ui->label_Palette->setText(tr(CLanguage::GetPtr()->GetTextPtr()->Label_Palette().c_str()));
+ ui->label_Emission->setText(tr(CLanguage::GetPtr()->GetTextPtr()->Label_Emission().c_str()));
+ ui->label_Temper->setText(tr(CLanguage::GetPtr()->GetTextPtr()->Label_Temper().c_str()));
+ ui->label_Alarm->setText(tr(CLanguage::GetPtr()->GetTextPtr()->Label_Alarm().c_str()));
+ ui->label_LevelMaxT->setText(tr(CLanguage::GetPtr()->GetTextPtr()->Label_LevelMaxT().c_str()));
+ ui->label_LevelMinT->setText(tr(CLanguage::GetPtr()->GetTextPtr()->Label_LevelMinT().c_str()));
+
+ ui->pushButton_ApplyPalette->setText(tr(CLanguage::GetPtr()->GetTextPtr()->Button_ApplyPalette().c_str()));
+ ui->pushButton_SaveAllFrame->setText(tr(CLanguage::GetPtr()->GetTextPtr()->Button_SaveAllFrame().c_str()));
+ ui->pushButton_SaveFrame->setText(tr(CLanguage::GetPtr()->GetTextPtr()->Button_SaveFrame().c_str()));
+ ui->pushButton_SaveImageCross->setText(tr(CLanguage::GetPtr()->GetTextPtr()->Button_SaveImageCross().c_str()));
+ ui->pushButton_SaveImageNoScale->setText(tr(CLanguage::GetPtr()->GetTextPtr()->Button_SaveImageNoScale().c_str()));
+ ui->pushButton_SaveRAW->setText(tr(CLanguage::GetPtr()->GetTextPtr()->Button_SaveRAW().c_str()));
+ ui->pushButton_SaveVideo->setText(tr(CLanguage::GetPtr()->GetTextPtr()->Button_SaveVideo().c_str()));
+ ui->pushButton_ShowVideo->setText(tr(CLanguage::GetPtr()->GetTextPtr()->Button_ShowVideo().c_str()));
+}
+
 
 //****************************************************************************************************
 //открытые функции
@@ -481,7 +566,13 @@ void CMainWindow::on_pushButton_SaveFrame_clicked()
  if (SaveRAW==true) SaveThermalImage();
  if (SaveVideo==true) SaveVideoImage();
 }
-
-
-
-
+//---------------------------------------------------------------------------
+//изменился выбор языка
+//---------------------------------------------------------------------------
+void CMainWindow::on_comboBox_Language_currentIndexChanged(const QString &arg1)
+{
+ int32_t index=ui->comboBox_Language->currentIndex();
+ if (index==0) CLanguage::GetPtr()->SetLanguage(CLanguage::LANGUAGE_ENGLISH);
+ if (index==1) CLanguage::GetPtr()->SetLanguage(CLanguage::LANGUAGE_RUSSIAN);
+ ApplyLanguage();
+}

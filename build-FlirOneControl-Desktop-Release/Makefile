@@ -128,7 +128,11 @@ SOURCES       = ../FlirOneControl/cflironecontrol.cpp \
 		../FlirOneControl/libjpeg/wrgif.c \
 		../FlirOneControl/libjpeg/wrppm.c \
 		../FlirOneControl/libjpeg/wrrle.c \
-		../FlirOneControl/libjpeg/wrtarga.c moc_cmainwindow.cpp \
+		../FlirOneControl/libjpeg/wrtarga.c \
+		../FlirOneControl/clanguage.cpp \
+		../FlirOneControl/ilanguage.cpp \
+		../FlirOneControl/clanguageenglish.cpp \
+		../FlirOneControl/clanguagerussian.cpp moc_cmainwindow.cpp \
 		moc_clabel_imagearea.cpp
 OBJECTS       = cflironecontrol.o \
 		cmainwindow.o \
@@ -209,6 +213,10 @@ OBJECTS       = cflironecontrol.o \
 		wrppm.o \
 		wrrle.o \
 		wrtarga.o \
+		clanguage.o \
+		ilanguage.o \
+		clanguageenglish.o \
+		clanguagerussian.o \
 		moc_cmainwindow.o \
 		moc_clabel_imagearea.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
@@ -250,6 +258,7 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_platformcompositor_support_private.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_printsupport.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_printsupport_private.pri \
+		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_serialport.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_service_support_private.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_sql.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_sql_private.pri \
@@ -315,7 +324,11 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		../FlirOneControl/libjpeg/jpegint.h \
 		../FlirOneControl/libjpeg/jpeglib.h \
 		../FlirOneControl/libjpeg/jversion.h \
-		../FlirOneControl/libjpeg/transupp.h ../FlirOneControl/cflironecontrol.cpp \
+		../FlirOneControl/libjpeg/transupp.h \
+		../FlirOneControl/clanguage.h \
+		../FlirOneControl/ilanguage.h \
+		../FlirOneControl/clanguageenglish.h \
+		../FlirOneControl/clanguagerussian.h ../FlirOneControl/cflironecontrol.cpp \
 		../FlirOneControl/cmainwindow.cpp \
 		../FlirOneControl/cringbuffer.cpp \
 		../FlirOneControl/main.cpp \
@@ -393,7 +406,11 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		../FlirOneControl/libjpeg/wrgif.c \
 		../FlirOneControl/libjpeg/wrppm.c \
 		../FlirOneControl/libjpeg/wrrle.c \
-		../FlirOneControl/libjpeg/wrtarga.c
+		../FlirOneControl/libjpeg/wrtarga.c \
+		../FlirOneControl/clanguage.cpp \
+		../FlirOneControl/ilanguage.cpp \
+		../FlirOneControl/clanguageenglish.cpp \
+		../FlirOneControl/clanguagerussian.cpp
 QMAKE_TARGET  = FlirOneControl
 DESTDIR       = 
 TARGET        = FlirOneControl
@@ -444,6 +461,7 @@ Makefile: ../FlirOneControl/FlirOneControl.pro /usr/lib/x86_64-linux-gnu/qt5/mks
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_platformcompositor_support_private.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_printsupport.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_printsupport_private.pri \
+		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_serialport.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_service_support_private.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_sql.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_sql_private.pri \
@@ -522,6 +540,7 @@ Makefile: ../FlirOneControl/FlirOneControl.pro /usr/lib/x86_64-linux-gnu/qt5/mks
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_platformcompositor_support_private.pri:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_printsupport.pri:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_printsupport_private.pri:
+/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_serialport.pri:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_service_support_private.pri:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_sql.pri:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_sql_private.pri:
@@ -575,8 +594,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents ../FlirOneControl/cflironecontrol.h ../FlirOneControl/cmainwindow.h ../FlirOneControl/cringbuffer.h ../FlirOneControl/cflironereceiver.h ../FlirOneControl/cmutex.h ../FlirOneControl/craiicmutex.h ../FlirOneControl/cthread.h ../FlirOneControl/system.h ../FlirOneControl/tga.h ../FlirOneControl/cflironedriver.h ../FlirOneControl/craiifileout.h ../FlirOneControl/craiifilein.h ../FlirOneControl/libusb.h ../FlirOneControl/clog.h ../FlirOneControl/cdecorator_iimage.h ../FlirOneControl/cdecorator_scale.h ../FlirOneControl/cpicture.h ../FlirOneControl/iimage.h ../FlirOneControl/cgraphics.h ../FlirOneControl/clabel_imagearea.h ../FlirOneControl/libjpeg/cderror.h ../FlirOneControl/libjpeg/cdjpeg.h ../FlirOneControl/libjpeg/jconfig.h ../FlirOneControl/libjpeg/jdct.h ../FlirOneControl/libjpeg/jerror.h ../FlirOneControl/libjpeg/jinclude.h ../FlirOneControl/libjpeg/jmemsys.h ../FlirOneControl/libjpeg/jmorecfg.h ../FlirOneControl/libjpeg/jpegint.h ../FlirOneControl/libjpeg/jpeglib.h ../FlirOneControl/libjpeg/jversion.h ../FlirOneControl/libjpeg/transupp.h $(DISTDIR)/
-	$(COPY_FILE) --parents ../FlirOneControl/cflironecontrol.cpp ../FlirOneControl/cmainwindow.cpp ../FlirOneControl/cringbuffer.cpp ../FlirOneControl/main.cpp ../FlirOneControl/cflironereceiver.cpp ../FlirOneControl/cmutex.cpp ../FlirOneControl/cthread.cpp ../FlirOneControl/system.cpp ../FlirOneControl/tga.cpp ../FlirOneControl/cflironedriver.cpp ../FlirOneControl/craiifileout.cpp ../FlirOneControl/craiifilein.cpp ../FlirOneControl/clog.cpp ../FlirOneControl/cdecorator_iimage.cpp ../FlirOneControl/cdecorator_scale.cpp ../FlirOneControl/cpicture.cpp ../FlirOneControl/iimage.cpp ../FlirOneControl/cgraphics.cpp ../FlirOneControl/clabel_imagearea.cpp ../FlirOneControl/libjpeg/cdjpeg.c ../FlirOneControl/libjpeg/jaricom.c ../FlirOneControl/libjpeg/jcapimin.c ../FlirOneControl/libjpeg/jcapistd.c ../FlirOneControl/libjpeg/jcarith.c ../FlirOneControl/libjpeg/jccoefct.c ../FlirOneControl/libjpeg/jccolor.c ../FlirOneControl/libjpeg/jcdctmgr.c ../FlirOneControl/libjpeg/jchuff.c ../FlirOneControl/libjpeg/jcinit.c ../FlirOneControl/libjpeg/jcmainct.c ../FlirOneControl/libjpeg/jcmarker.c ../FlirOneControl/libjpeg/jcmaster.c ../FlirOneControl/libjpeg/jcomapi.c ../FlirOneControl/libjpeg/jcparam.c ../FlirOneControl/libjpeg/jcprepct.c ../FlirOneControl/libjpeg/jcsample.c ../FlirOneControl/libjpeg/jctrans.c ../FlirOneControl/libjpeg/jdapimin.c ../FlirOneControl/libjpeg/jdapistd.c ../FlirOneControl/libjpeg/jdarith.c ../FlirOneControl/libjpeg/jdatadst.c ../FlirOneControl/libjpeg/jdatasrc.c ../FlirOneControl/libjpeg/jdcoefct.c ../FlirOneControl/libjpeg/jdcolor.c ../FlirOneControl/libjpeg/jddctmgr.c ../FlirOneControl/libjpeg/jdhuff.c ../FlirOneControl/libjpeg/jdinput.c ../FlirOneControl/libjpeg/jdmainct.c ../FlirOneControl/libjpeg/jdmarker.c ../FlirOneControl/libjpeg/jdmaster.c ../FlirOneControl/libjpeg/jdmerge.c ../FlirOneControl/libjpeg/jdpostct.c ../FlirOneControl/libjpeg/jdsample.c ../FlirOneControl/libjpeg/jdtrans.c ../FlirOneControl/libjpeg/jerror.c ../FlirOneControl/libjpeg/jfdctflt.c ../FlirOneControl/libjpeg/jfdctfst.c ../FlirOneControl/libjpeg/jfdctint.c ../FlirOneControl/libjpeg/jidctflt.c ../FlirOneControl/libjpeg/jidctfst.c ../FlirOneControl/libjpeg/jidctint.c ../FlirOneControl/libjpeg/jmemansi.c ../FlirOneControl/libjpeg/jmemmgr.c ../FlirOneControl/libjpeg/jquant1.c ../FlirOneControl/libjpeg/jquant2.c ../FlirOneControl/libjpeg/jutils.c ../FlirOneControl/libjpeg/rdbmp.c ../FlirOneControl/libjpeg/rdcolmap.c ../FlirOneControl/libjpeg/rdgif.c ../FlirOneControl/libjpeg/rdppm.c ../FlirOneControl/libjpeg/rdrle.c ../FlirOneControl/libjpeg/rdswitch.c ../FlirOneControl/libjpeg/rdtarga.c ../FlirOneControl/libjpeg/transupp.c ../FlirOneControl/libjpeg/wrbmp.c ../FlirOneControl/libjpeg/wrgif.c ../FlirOneControl/libjpeg/wrppm.c ../FlirOneControl/libjpeg/wrrle.c ../FlirOneControl/libjpeg/wrtarga.c $(DISTDIR)/
+	$(COPY_FILE) --parents ../FlirOneControl/cflironecontrol.h ../FlirOneControl/cmainwindow.h ../FlirOneControl/cringbuffer.h ../FlirOneControl/cflironereceiver.h ../FlirOneControl/cmutex.h ../FlirOneControl/craiicmutex.h ../FlirOneControl/cthread.h ../FlirOneControl/system.h ../FlirOneControl/tga.h ../FlirOneControl/cflironedriver.h ../FlirOneControl/craiifileout.h ../FlirOneControl/craiifilein.h ../FlirOneControl/libusb.h ../FlirOneControl/clog.h ../FlirOneControl/cdecorator_iimage.h ../FlirOneControl/cdecorator_scale.h ../FlirOneControl/cpicture.h ../FlirOneControl/iimage.h ../FlirOneControl/cgraphics.h ../FlirOneControl/clabel_imagearea.h ../FlirOneControl/libjpeg/cderror.h ../FlirOneControl/libjpeg/cdjpeg.h ../FlirOneControl/libjpeg/jconfig.h ../FlirOneControl/libjpeg/jdct.h ../FlirOneControl/libjpeg/jerror.h ../FlirOneControl/libjpeg/jinclude.h ../FlirOneControl/libjpeg/jmemsys.h ../FlirOneControl/libjpeg/jmorecfg.h ../FlirOneControl/libjpeg/jpegint.h ../FlirOneControl/libjpeg/jpeglib.h ../FlirOneControl/libjpeg/jversion.h ../FlirOneControl/libjpeg/transupp.h ../FlirOneControl/clanguage.h ../FlirOneControl/ilanguage.h ../FlirOneControl/clanguageenglish.h ../FlirOneControl/clanguagerussian.h $(DISTDIR)/
+	$(COPY_FILE) --parents ../FlirOneControl/cflironecontrol.cpp ../FlirOneControl/cmainwindow.cpp ../FlirOneControl/cringbuffer.cpp ../FlirOneControl/main.cpp ../FlirOneControl/cflironereceiver.cpp ../FlirOneControl/cmutex.cpp ../FlirOneControl/cthread.cpp ../FlirOneControl/system.cpp ../FlirOneControl/tga.cpp ../FlirOneControl/cflironedriver.cpp ../FlirOneControl/craiifileout.cpp ../FlirOneControl/craiifilein.cpp ../FlirOneControl/clog.cpp ../FlirOneControl/cdecorator_iimage.cpp ../FlirOneControl/cdecorator_scale.cpp ../FlirOneControl/cpicture.cpp ../FlirOneControl/iimage.cpp ../FlirOneControl/cgraphics.cpp ../FlirOneControl/clabel_imagearea.cpp ../FlirOneControl/libjpeg/cdjpeg.c ../FlirOneControl/libjpeg/jaricom.c ../FlirOneControl/libjpeg/jcapimin.c ../FlirOneControl/libjpeg/jcapistd.c ../FlirOneControl/libjpeg/jcarith.c ../FlirOneControl/libjpeg/jccoefct.c ../FlirOneControl/libjpeg/jccolor.c ../FlirOneControl/libjpeg/jcdctmgr.c ../FlirOneControl/libjpeg/jchuff.c ../FlirOneControl/libjpeg/jcinit.c ../FlirOneControl/libjpeg/jcmainct.c ../FlirOneControl/libjpeg/jcmarker.c ../FlirOneControl/libjpeg/jcmaster.c ../FlirOneControl/libjpeg/jcomapi.c ../FlirOneControl/libjpeg/jcparam.c ../FlirOneControl/libjpeg/jcprepct.c ../FlirOneControl/libjpeg/jcsample.c ../FlirOneControl/libjpeg/jctrans.c ../FlirOneControl/libjpeg/jdapimin.c ../FlirOneControl/libjpeg/jdapistd.c ../FlirOneControl/libjpeg/jdarith.c ../FlirOneControl/libjpeg/jdatadst.c ../FlirOneControl/libjpeg/jdatasrc.c ../FlirOneControl/libjpeg/jdcoefct.c ../FlirOneControl/libjpeg/jdcolor.c ../FlirOneControl/libjpeg/jddctmgr.c ../FlirOneControl/libjpeg/jdhuff.c ../FlirOneControl/libjpeg/jdinput.c ../FlirOneControl/libjpeg/jdmainct.c ../FlirOneControl/libjpeg/jdmarker.c ../FlirOneControl/libjpeg/jdmaster.c ../FlirOneControl/libjpeg/jdmerge.c ../FlirOneControl/libjpeg/jdpostct.c ../FlirOneControl/libjpeg/jdsample.c ../FlirOneControl/libjpeg/jdtrans.c ../FlirOneControl/libjpeg/jerror.c ../FlirOneControl/libjpeg/jfdctflt.c ../FlirOneControl/libjpeg/jfdctfst.c ../FlirOneControl/libjpeg/jfdctint.c ../FlirOneControl/libjpeg/jidctflt.c ../FlirOneControl/libjpeg/jidctfst.c ../FlirOneControl/libjpeg/jidctint.c ../FlirOneControl/libjpeg/jmemansi.c ../FlirOneControl/libjpeg/jmemmgr.c ../FlirOneControl/libjpeg/jquant1.c ../FlirOneControl/libjpeg/jquant2.c ../FlirOneControl/libjpeg/jutils.c ../FlirOneControl/libjpeg/rdbmp.c ../FlirOneControl/libjpeg/rdcolmap.c ../FlirOneControl/libjpeg/rdgif.c ../FlirOneControl/libjpeg/rdppm.c ../FlirOneControl/libjpeg/rdrle.c ../FlirOneControl/libjpeg/rdswitch.c ../FlirOneControl/libjpeg/rdtarga.c ../FlirOneControl/libjpeg/transupp.c ../FlirOneControl/libjpeg/wrbmp.c ../FlirOneControl/libjpeg/wrgif.c ../FlirOneControl/libjpeg/wrppm.c ../FlirOneControl/libjpeg/wrrle.c ../FlirOneControl/libjpeg/wrtarga.c ../FlirOneControl/clanguage.cpp ../FlirOneControl/ilanguage.cpp ../FlirOneControl/clanguageenglish.cpp ../FlirOneControl/clanguagerussian.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents ../FlirOneControl/cmainwindow.ui $(DISTDIR)/
 
 
@@ -1295,6 +1314,21 @@ wrtarga.o: ../FlirOneControl/libjpeg/wrtarga.c ../FlirOneControl/libjpeg/cdjpeg.
 		../FlirOneControl/libjpeg/jerror.h \
 		../FlirOneControl/libjpeg/cderror.h
 	$(CC) -c $(CFLAGS) $(INCPATH) -o wrtarga.o ../FlirOneControl/libjpeg/wrtarga.c
+
+clanguage.o: ../FlirOneControl/clanguage.cpp ../FlirOneControl/clanguage.h \
+		../FlirOneControl/ilanguage.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o clanguage.o ../FlirOneControl/clanguage.cpp
+
+ilanguage.o: ../FlirOneControl/ilanguage.cpp ../FlirOneControl/ilanguage.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ilanguage.o ../FlirOneControl/ilanguage.cpp
+
+clanguageenglish.o: ../FlirOneControl/clanguageenglish.cpp ../FlirOneControl/clanguageenglish.h \
+		../FlirOneControl/ilanguage.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o clanguageenglish.o ../FlirOneControl/clanguageenglish.cpp
+
+clanguagerussian.o: ../FlirOneControl/clanguagerussian.cpp ../FlirOneControl/clanguagerussian.h \
+		../FlirOneControl/ilanguage.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o clanguagerussian.o ../FlirOneControl/clanguagerussian.cpp
 
 moc_cmainwindow.o: moc_cmainwindow.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_cmainwindow.o moc_cmainwindow.cpp

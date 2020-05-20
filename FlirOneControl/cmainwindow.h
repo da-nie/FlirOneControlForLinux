@@ -49,21 +49,26 @@ class CMainWindow:public QMainWindow
   //-перечисления---------------------------------------------------------------------------------------
   //-структуры------------------------------------------------------------------------------------------
   //-константы------------------------------------------------------------------------------------------
-
-  static const uint32_t COLOR_WHITE=0xFFFFFFFF;//белый цвет
-  static const uint32_t COLOR_BLACK=0xFF000000;//чёрный цвет
-
   static const uint32_t TIMER_INTERVAL_MS=100;//интервал срабатывания таймера, мс
   static const int32_t FRAME_SIZE=3;//размер области измерения температуры
   static const int32_t IMAGE_VIEW_WIDTH=(CFlirOneReceiver::IMAGE_WIDTH+4+CGraphics::FONT_WIDTH*7);
   static const int32_t IMAGE_VIEW_HEIGHT=(CFlirOneReceiver::IMAGE_HEIGHT);
   static const size_t PATH_STRING_BUFFER_SIZE=1024;//размер строки для пути
   static const size_t STRING_BUFFER_SIZE=255;//размер строки
+
+  static const uint32_t COLOR_WHITE=0xFFFFFFFF;//белый цвет
+  static const uint32_t COLOR_BLACK=0xFF000000;//чёрный цвет
+
+  static const uint32_t ALARM_MAX_TEMPER_COUNTER_MAX_VALUE=5;//максимальное значение количества кадров с температурой выше маемимума до срабатывания сигнала
+  static const uint32_t ALARM_MIN_TEMPER_COUNTER_MAX_VALUE=5;//максимальное значение количества кадров с температурой ниже минимума до срабатывания сигнала
  private:
   //-переменные-----------------------------------------------------------------------------------------
   Ui::CMainWindow *ui;//пользовательский интерфейс
   CFlirOneControl cFlirOneControl;//класс управления тепловизором Flir One
   int32_t TimerId;//идентификатор таймера
+
+  uint32_t AlarmMaxTemperCounter;//счётчик количества кадров с температурой выше максимума до срабатывания сигнала
+  uint32_t AlarmMinTemperCounter;//счётчик количества кадров в температурой ниже минимума до срабатывания сигнала
 
   CLabel_ImageArea *cLabel_ImageArea_ThermalImage_Ptr;//тепловое изображение
   CLabel_ImageArea *cLabel_ImageArea_VideoImage_Ptr;//видео  
@@ -112,12 +117,17 @@ class CMainWindow:public QMainWindow
  private:
   //-закрытые функции-----------------------------------------------------------------------------------
   void timerEvent(QTimerEvent *qTimerEvent_Ptr);//обработчик таймера
+  void NewFrame(void);//новый кадр
+  bool MinTemperControl(float t);//контроль минимальной температуры
+  bool MaxTemperControl(float t);//контроль максимальной температуры
+  void FindPalette(void);//поиск палитр
   void ChangeState(bool &state,QWidget *qWidget_Ptr);//смена состояния кнопки и значения флага
-  void SetState(bool &state,QWidget *qWidget_Ptr,bool set_state);//задать состояние кнопки
+  void SetState(bool &state,QWidget *qWidget_Ptr,bool set_state);//задать состояние кнопки и флага
   bool GetTemperature(uint16_t raw14,double &value);//вычислить температуру
   void SaveThermalImage(void);//сохранить тепловое изображение
   void SaveColorImage(void);//сохранить раскрашенное изображение
   void SaveVideoImage(void);//сохранить кадр с видеокамеры
+  void ApplyLanguage(void);//применить выбранный язык
  private slots:
   //-закрытые слоты-------------------------------------------------------------------------------------
   void on_pushButton_ApplyPalette_clicked();//нажата кнопка "Применить палитру"
@@ -128,6 +138,7 @@ class CMainWindow:public QMainWindow
   void on_pushButton_ShowVideo_clicked();//нажата кнопка "Показывать видео"
   void on_pushButton_SaveAllFrame_clicked();//нажата кнопка "Сохранять все кадры"
   void on_pushButton_SaveFrame_clicked();//нажата кнопка "Сохранить один кадр"
+  void on_comboBox_Language_currentIndexChanged(const QString &arg1);//изменился выбор языкаS
 };
 
 

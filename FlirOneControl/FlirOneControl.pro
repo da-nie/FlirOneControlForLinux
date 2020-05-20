@@ -104,7 +104,11 @@ SOURCES += \
     libjpeg/wrgif.c \
     libjpeg/wrppm.c \
     libjpeg/wrrle.c \
-    libjpeg/wrtarga.c
+    libjpeg/wrtarga.c \
+    clanguage.cpp \
+    ilanguage.cpp \
+    clanguageenglish.cpp \
+    clanguagerussian.cpp
 
 HEADERS += \
     cflironecontrol.h \
@@ -138,7 +142,11 @@ HEADERS += \
     libjpeg/jpegint.h \
     libjpeg/jpeglib.h \
     libjpeg/jversion.h \
-    libjpeg/transupp.h
+    libjpeg/transupp.h \
+    clanguage.h \
+    ilanguage.h \
+    clanguageenglish.h \
+    clanguagerussian.h
 
 FORMS += \
         cmainwindow.ui

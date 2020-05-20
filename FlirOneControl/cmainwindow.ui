@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1098</width>
-    <height>674</height>
+    <width>1048</width>
+    <height>746</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -51,19 +51,6 @@
         </property>
        </widget>
       </item>
-      <item row="9" column="5" rowspan="2" colspan="3">
-       <widget class="QPushButton" name="pushButton_SaveFrame">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>Сохранить один кадр</string>
-        </property>
-       </widget>
-      </item>
       <item row="10" column="3">
        <widget class="QPushButton" name="pushButton_ShowVideo">
         <property name="text">
@@ -104,19 +91,6 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="5" rowspan="2" colspan="3">
-       <widget class="QPushButton" name="pushButton_SaveAllFrame">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>Сохранять все кадры</string>
-        </property>
-       </widget>
-      </item>
       <item row="7" column="0" colspan="2">
        <widget class="QLabel" name="label_Temper">
         <property name="frameShape">
@@ -127,10 +101,16 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="5" rowspan="5" colspan="3">
-       <widget class="QLabel" name="CLabel_VideoImage">
+      <item row="5" column="5" rowspan="2" colspan="4">
+       <widget class="QPushButton" name="pushButton_SaveAllFrame">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
-         <string/>
+         <string>Сохранять все кадры</string>
         </property>
        </widget>
       </item>
@@ -160,6 +140,83 @@
          <string/>
         </property>
        </widget>
+      </item>
+      <item row="11" column="5" colspan="3">
+       <widget class="QLabel" name="label_LevelMinT">
+        <property name="text">
+         <string>Нижняя граница температуры для сигнализации</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="5" rowspan="2" colspan="4">
+       <widget class="QPushButton" name="pushButton_SaveFrame">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Сохранить один кадр</string>
+        </property>
+       </widget>
+      </item>
+      <item row="11" column="3">
+       <widget class="QDoubleSpinBox" name="doubleSpinBox_MaxT">
+        <property name="minimum">
+         <double>-300.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>300.000000000000000</double>
+        </property>
+        <property name="value">
+         <double>100.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="11" column="0" colspan="3">
+       <widget class="QLabel" name="label_LevelMaxT">
+        <property name="text">
+         <string>Верхняя граница температуры для сигнализации</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="5" rowspan="5" colspan="4">
+       <widget class="QLabel" name="CLabel_VideoImage">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="11" column="8">
+       <widget class="QDoubleSpinBox" name="doubleSpinBox_MinT">
+        <property name="minimum">
+         <double>-300.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>300.000000000000000</double>
+        </property>
+        <property name="value">
+         <double>-100.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="0" colspan="3">
+       <widget class="QLabel" name="label_Alarm">
+        <property name="text">
+         <string>При выходе за границы температуры выполнить:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="3">
+       <widget class="QCheckBox" name="checkBox_AlarmSaveFrame">
+        <property name="text">
+         <string>Сохранить кадр</string>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="5" colspan="4">
+       <widget class="QComboBox" name="comboBox_Language"/>
       </item>
      </layout>
     </item>
