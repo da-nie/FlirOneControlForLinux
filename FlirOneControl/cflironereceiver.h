@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include <vector>
 #include <string>
+#include <memory>
 #include "cringbuffer.h"
 #include "libjpeg/jpeglib.h"
 
@@ -56,12 +57,13 @@ class CFlirOneReceiver
   static const int32_t VIDEO_HEIGHT=640;
 
   //размер изображений
-  static const int32_t THERMAL_IMAGE_SIZE_SHORT=(IMAGE_WIDTH*IMAGE_HEIGHT);
-  static const int32_t COLOR_IMAGE_SIZE_LONG=(IMAGE_WIDTH*IMAGE_HEIGHT);
-  static const int32_t VIDEO_IMAGE_SIZE_LONG=(VIDEO_WIDTH*VIDEO_HEIGHT);
+  static const int32_t THERMAL_IMAGE_SIZE=(IMAGE_WIDTH*IMAGE_HEIGHT);
+  static const int32_t COLOR_IMAGE_SIZE=(IMAGE_WIDTH*IMAGE_HEIGHT);
+  static const int32_t VIDEO_IMAGE_SIZE=(VIDEO_WIDTH*VIDEO_HEIGHT);
 
   static const int32_t COLOR_MAP_UNIT=256;//количество цветов в палитре
   static const int32_t COLOR_SIZE=3;//число байт на один цвет (RGB)
+  static const int32_t MAX_COLOR_INDEX=(COLOR_MAP_UNIT-1);//максимальный индекс цвета
  private:
   //-структуры------------------------------------------------------------------------------------------
 
@@ -86,7 +88,7 @@ class CFlirOneReceiver
   uint8_t ColorMap_G[COLOR_MAP_UNIT];
   uint8_t ColorMap_B[COLOR_MAP_UNIT];
 
-  CRingBuffer *cRingBuffer_Ptr;//кольцевой буфер приёма данных
+  std::unique_ptr<CRingBuffer> cRingBuffer_Ptr;//кольцевой буфер приёма данных
 
   SHeader sHeader;//заголовок пакета
   bool HeaderIsReceived;//заголовок принят
@@ -94,9 +96,9 @@ class CFlirOneReceiver
   uint8_t MagicPos;//позиция анализируемого магического байта
   uint32_t MagicHeadPos;//позиция головы, когда встречился первый магический байт
 
-  uint16_t *ThermalImage;//тепловое изображение (raw14)
-  uint32_t *VideoImage;//изображение с видеокамеры
-  uint32_t *ColorImage;//раскрашенное изображение
+  std::vector<uint16_t> ThermalImage;//тепловое изображение (raw14)
+  std::vector<uint32_t> VideoImage;//изображение с видеокамеры
+  std::vector<uint32_t> ColorImage;//раскрашенное изображение
 
   std::vector<uint8_t> JPGImage;//прямые данные с видеокамеры (картинка в jpg)
 
@@ -111,11 +113,11 @@ class CFlirOneReceiver
  public:
   //-открытые функции-----------------------------------------------------------------------------------
   bool LoadColorMap(const std::string &filename);//загрузить карту перекодировки изображения
-  bool CopyColorImage(uint32_t *image_ptr,uint32_t size,uint32_t &index);//скопировать раскрашенное изображение в буфер
-  bool CopyThermalImage(uint16_t *image_ptr,uint32_t size,uint32_t &index);//скопировать тепловое изображение в буфер
-  bool CopyVideoImage(uint32_t *image_ptr,uint32_t size,uint32_t &index);//скопировать изображение с видеокамеры в буфер
+  bool CopyColorImage(std::vector<uint32_t> &image,uint32_t &index);//скопировать раскрашенное изображение в буфер
+  bool CopyThermalImage(std::vector<uint16_t> &image,uint32_t &index);//скопировать тепловое изображение в буфер
+  bool CopyVideoImage(std::vector<uint32_t> &image,uint32_t &index);//скопировать изображение с видеокамеры в буфер
   bool CopyJPGImage(std::vector<uint8_t> &vector_jpg,uint32_t &index);//скопировать данные с видеокамеры в буфер
-  bool CopyColorMap(uint8_t R[256],uint8_t G[256],uint8_t B[256],uint32_t size);//скопировать палитру
+  bool CopyColorMap(uint8_t R[COLOR_MAP_UNIT],uint8_t G[COLOR_MAP_UNIT],uint8_t B[COLOR_MAP_UNIT],uint32_t size);//скопировать палитру
   bool CreateImage(uint8_t *buffer,uint32_t size);//создать изображение
   void SetShowVideo(bool state);//показывать ли видео
  private:

@@ -49,7 +49,11 @@ class CMainWindow:public QMainWindow
   //-перечисления---------------------------------------------------------------------------------------
   //-структуры------------------------------------------------------------------------------------------
   //-константы------------------------------------------------------------------------------------------
-  static const uint32_t TIMER_INTERVAL_MS=50;//интервал срабатывания таймера, мс  
+
+  static const uint32_t COLOR_WHITE=0xFFFFFFFF;//белый цвет
+  static const uint32_t COLOR_BLACK=0xFF000000;//чёрный цвет
+
+  static const uint32_t TIMER_INTERVAL_MS=100;//интервал срабатывания таймера, мс
   static const int32_t FRAME_SIZE=3;//размер области измерения температуры
   static const int32_t IMAGE_VIEW_WIDTH=(CFlirOneReceiver::IMAGE_WIDTH+4+CGraphics::FONT_WIDTH*7);
   static const int32_t IMAGE_VIEW_HEIGHT=(CFlirOneReceiver::IMAGE_HEIGHT);
@@ -108,12 +112,22 @@ class CMainWindow:public QMainWindow
  private:
   //-закрытые функции-----------------------------------------------------------------------------------
   void timerEvent(QTimerEvent *qTimerEvent_Ptr);//обработчик таймера
+  void ChangeState(bool &state,QWidget *qWidget_Ptr);//смена состояния кнопки и значения флага
+  void SetState(bool &state,QWidget *qWidget_Ptr,bool set_state);//задать состояние кнопки
   bool GetTemperature(uint16_t raw14,double &value);//вычислить температуру
   void SaveThermalImage(void);//сохранить тепловое изображение
   void SaveColorImage(void);//сохранить раскрашенное изображение
   void SaveVideoImage(void);//сохранить кадр с видеокамеры
  private slots:
   //-закрытые слоты-------------------------------------------------------------------------------------
+  void on_pushButton_ApplyPalette_clicked();//нажата кнопка "Применить палитру"
+  void on_pushButton_SaveVideo_clicked();//нажата кнопка "Сохранять кадры с видеокамеры"
+  void on_pushButton_SaveImageCross_clicked();//нажата кнопка "Рисовать перекрестье"
+  void on_pushButton_SaveImageNoScale_clicked();//нажата кнопка "Сохранять изображение без шкалы"
+  void on_pushButton_SaveRAW_clicked();//нажата кнопка "Сохранять файл RAW"
+  void on_pushButton_ShowVideo_clicked();//нажата кнопка "Показывать видео"
+  void on_pushButton_SaveAllFrame_clicked();//нажата кнопка "Сохранять все кадры"
+  void on_pushButton_SaveFrame_clicked();//нажата кнопка "Сохранить один кадр"
 };
 
 

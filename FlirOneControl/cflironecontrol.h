@@ -12,7 +12,7 @@
 #include <stdint.h>
 #include <memory>
 #include <string>
-#include "tga.h"
+#include <vector>
 #include "cthread.h"
 #include "cmutex.h"
 #include "cflironereceiver.h"
@@ -66,10 +66,10 @@ class CFlirOneControl
   bool Open(void);//подключиться к устройству
   void Close(void);//отключиться от устройства
   bool LoadColorMap(const std::string &filename);//загрузить карту перекодировки изображения
-  bool CopyColorImage(uint32_t *image_ptr,uint32_t size,uint32_t &index);//скопировать раскрашенное изображение в буфер
-  bool CopyThermalImage(uint16_t *image_ptr,uint32_t size,uint32_t &index);//скопировать тепловое изображение в буфер
-  bool CopyVideoImage(uint32_t *image_ptr,uint32_t size,uint32_t &index);//скопировать изображение с видеокамеры в буфер
-  bool CopyColorMap(uint8_t R[256],uint8_t G[256],uint8_t B[256],uint32_t size);//скопировать палитру
+  bool CopyColorImage(std::vector<uint32_t> &image,uint32_t &index);//скопировать раскрашенное изображение в буфер
+  bool CopyThermalImage(std::vector<uint16_t> &image,uint32_t &index);//скопировать тепловое изображение в буфер
+  bool CopyVideoImage(std::vector<uint32_t> &image,uint32_t &index);//скопировать изображение с видеокамеры в буфер
+  bool CopyColorMap(uint8_t R[CFlirOneReceiver::COLOR_MAP_UNIT],uint8_t G[CFlirOneReceiver::COLOR_MAP_UNIT],uint8_t B[CFlirOneReceiver::COLOR_MAP_UNIT],uint32_t size);//скопировать палитру
   void SetShowVideo(bool state);//показывать ли видео
  private:
   //-закрытые функции-----------------------------------------------------------------------------------  

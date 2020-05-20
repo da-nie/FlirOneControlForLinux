@@ -250,7 +250,6 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_platformcompositor_support_private.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_printsupport.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_printsupport_private.pri \
-		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_serialport.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_service_support_private.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_sql.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_sql_private.pri \
@@ -445,7 +444,6 @@ Makefile: ../FlirOneControl/FlirOneControl.pro /usr/lib/x86_64-linux-gnu/qt5/mks
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_platformcompositor_support_private.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_printsupport.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_printsupport_private.pri \
-		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_serialport.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_service_support_private.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_sql.pri \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_sql_private.pri \
@@ -524,7 +522,6 @@ Makefile: ../FlirOneControl/FlirOneControl.pro /usr/lib/x86_64-linux-gnu/qt5/mks
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_platformcompositor_support_private.pri:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_printsupport.pri:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_printsupport_private.pri:
-/usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_serialport.pri:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_service_support_private.pri:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_sql.pri:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/modules/qt_lib_sql_private.pri:
@@ -617,7 +614,6 @@ compiler_moc_header_clean:
 	-$(DEL_FILE) moc_cmainwindow.cpp moc_clabel_imagearea.cpp
 moc_cmainwindow.cpp: ../FlirOneControl/iimage.h \
 		../FlirOneControl/cflironecontrol.h \
-		../FlirOneControl/tga.h \
 		../FlirOneControl/cthread.h \
 		../FlirOneControl/cmutex.h \
 		../FlirOneControl/cflironereceiver.h \
@@ -661,7 +657,6 @@ compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean compiler_ui
 ####### Compile
 
 cflironecontrol.o: ../FlirOneControl/cflironecontrol.cpp ../FlirOneControl/cflironecontrol.h \
-		../FlirOneControl/tga.h \
 		../FlirOneControl/cthread.h \
 		../FlirOneControl/cmutex.h \
 		../FlirOneControl/cflironereceiver.h \
@@ -681,7 +676,6 @@ cflironecontrol.o: ../FlirOneControl/cflironecontrol.cpp ../FlirOneControl/cflir
 cmainwindow.o: ../FlirOneControl/cmainwindow.cpp ../FlirOneControl/cmainwindow.h \
 		../FlirOneControl/iimage.h \
 		../FlirOneControl/cflironecontrol.h \
-		../FlirOneControl/tga.h \
 		../FlirOneControl/cthread.h \
 		../FlirOneControl/cmutex.h \
 		../FlirOneControl/cflironereceiver.h \
@@ -699,7 +693,8 @@ cmainwindow.o: ../FlirOneControl/cmainwindow.cpp ../FlirOneControl/cmainwindow.h
 		../FlirOneControl/cpicture.h \
 		../FlirOneControl/cdecorator_scale.h \
 		../FlirOneControl/cdecorator_iimage.h \
-		../FlirOneControl/system.h
+		../FlirOneControl/system.h \
+		../FlirOneControl/tga.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o cmainwindow.o ../FlirOneControl/cmainwindow.cpp
 
 cringbuffer.o: ../FlirOneControl/cringbuffer.cpp ../FlirOneControl/cringbuffer.h
@@ -708,7 +703,6 @@ cringbuffer.o: ../FlirOneControl/cringbuffer.cpp ../FlirOneControl/cringbuffer.h
 main.o: ../FlirOneControl/main.cpp ../FlirOneControl/cmainwindow.h \
 		../FlirOneControl/iimage.h \
 		../FlirOneControl/cflironecontrol.h \
-		../FlirOneControl/tga.h \
 		../FlirOneControl/cthread.h \
 		../FlirOneControl/cmutex.h \
 		../FlirOneControl/cflironereceiver.h \

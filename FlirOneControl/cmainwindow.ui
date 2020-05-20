@@ -6,50 +6,165 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>989</width>
-    <height>550</height>
+    <width>1098</width>
+    <height>674</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>CMainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QLabel" name="CLabel_ThermalImage">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>371</width>
-      <height>341</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-   </widget>
-   <widget class="QLabel" name="CLabel_VideoImage">
-    <property name="geometry">
-     <rect>
-      <x>600</x>
-      <y>10</y>
-      <width>371</width>
-      <height>341</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-   </widget>
+   <layout class="QGridLayout" name="gridLayout_2">
+    <item row="0" column="0">
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="5" column="0" colspan="2">
+       <widget class="QLabel" name="label_Emission">
+        <property name="frameShape">
+         <enum>QFrame::Panel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Plain</enum>
+        </property>
+        <property name="text">
+         <string>Коэффициент излучения материала</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="3">
+       <widget class="QPushButton" name="pushButton_SaveRAW">
+        <property name="text">
+         <string>Сохранять файл RAW</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="3">
+       <widget class="QPushButton" name="pushButton_SaveVideo">
+        <property name="text">
+         <string>Сохранять кадры с видеокамеры</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="0">
+       <widget class="QLabel" name="label_Palette">
+        <property name="text">
+         <string>Палитра</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="5" rowspan="2" colspan="3">
+       <widget class="QPushButton" name="pushButton_SaveFrame">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Сохранить один кадр</string>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="3">
+       <widget class="QPushButton" name="pushButton_ShowVideo">
+        <property name="text">
+         <string>Показывать видео</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="3">
+       <widget class="QPushButton" name="pushButton_SaveImageNoScale">
+        <property name="text">
+         <string>Сохранять изображения без шкалы</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="2">
+       <widget class="QDoubleSpinBox" name="doubleSpinBox_Emission">
+        <property name="minimum">
+         <double>0.010000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.950000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="1" colspan="2">
+       <widget class="QComboBox" name="comboBox_Palette"/>
+      </item>
+      <item row="10" column="0" colspan="3">
+       <widget class="QPushButton" name="pushButton_ApplyPalette">
+        <property name="text">
+         <string>Применить палитру</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="5" rowspan="2" colspan="3">
+       <widget class="QPushButton" name="pushButton_SaveAllFrame">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Сохранять все кадры</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0" colspan="2">
+       <widget class="QLabel" name="label_Temper">
+        <property name="frameShape">
+         <enum>QFrame::Panel</enum>
+        </property>
+        <property name="text">
+         <string>Температура болометров, C</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="5" rowspan="5" colspan="3">
+       <widget class="QLabel" name="CLabel_VideoImage">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="3">
+       <widget class="QPushButton" name="pushButton_SaveImageCross">
+        <property name="text">
+         <string>Сохранять с кадры с перекрестьем</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="2">
+       <widget class="QDoubleSpinBox" name="doubleSpinBox_Temperature">
+        <property name="minimum">
+         <double>-99.989999999999995</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>20.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" rowspan="5" colspan="4">
+       <widget class="QLabel" name="CLabel_ThermalImage">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
   </widget>
-  <widget class="QToolBar" name="mainToolBar">
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-  </widget>
-  <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>

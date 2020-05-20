@@ -15,8 +15,8 @@
 //прототипы функций
 //****************************************************************************************************
 
-void CreateFileList(const std::string &path,std::vector<std::string> &vector_file_name);//создать список файлов директории
-void CreateDirectoryList(const std::string &path,std::vector<std::string> &vector_directory_name);//создать список каталогов директории
+void CreateFileList(const std::string &path,std::vector<std::string> &vector_file_name,std::vector<std::string> &vector_file_name_without_path);//создать список файлов директории
+void CreateDirectoryList(const std::string &path,std::vector<std::string> &vector_directory_name,std::vector<std::string> &vector_directory_name_without_path);//создать список каталогов директории
 void MakeDirectory(const std::string &directory_name);//создать каталог
 long double GetSecondCounter(void);//получить прошедшее время в секундах
 void PauseInMs(size_t ms);//пауза в миллисекундах

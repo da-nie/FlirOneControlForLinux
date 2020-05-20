@@ -139,37 +139,37 @@ bool CFlirOneControl::LoadColorMap(const std::string &filename)
 //----------------------------------------------------------------------------------------------------
 //скопировать раскрашенное изображение в буфер
 //----------------------------------------------------------------------------------------------------
-bool CFlirOneControl::CopyColorImage(uint32_t *image_ptr,uint32_t size,uint32_t &index)
+bool CFlirOneControl::CopyColorImage(std::vector<uint32_t> &image,uint32_t &index)
 {
  CRAIICMutex cRAIICMutex(&sProtected.cMutex);
  {
-  return(sProtected.cFlirOneReceiver.CopyColorImage(image_ptr,size,index));
+  return(sProtected.cFlirOneReceiver.CopyColorImage(image,index));
  }
 }
 //----------------------------------------------------------------------------------------------------
 //скопировать тепловое изображение в буфер
 //----------------------------------------------------------------------------------------------------
-bool CFlirOneControl::CopyThermalImage(uint16_t *image_ptr,uint32_t size,uint32_t &index)
+bool CFlirOneControl::CopyThermalImage(std::vector<uint16_t> &image,uint32_t &index)
 {
  CRAIICMutex cRAIICMutex(&sProtected.cMutex);
  {
-  return(sProtected.cFlirOneReceiver.CopyThermalImage(image_ptr,size,index));
+  return(sProtected.cFlirOneReceiver.CopyThermalImage(image,index));
  }
 }
 //----------------------------------------------------------------------------------------------------
 //скопировать изображение с видеокамеры в буфер
 //----------------------------------------------------------------------------------------------------
-bool CFlirOneControl::CopyVideoImage(uint32_t *image_ptr,uint32_t size,uint32_t &index)
+bool CFlirOneControl::CopyVideoImage(std::vector<uint32_t> &image,uint32_t &index)
 {
  CRAIICMutex cRAIICMutex(&sProtected.cMutex);
  {
-  return(sProtected.cFlirOneReceiver.CopyVideoImage(image_ptr,size,index));
+  return(sProtected.cFlirOneReceiver.CopyVideoImage(image,index));
  }
 }
 //----------------------------------------------------------------------------------------------------
 //скопировать палитру
 //----------------------------------------------------------------------------------------------------
-bool CFlirOneControl::CopyColorMap(uint8_t R[256],uint8_t G[256],uint8_t B[256],uint32_t size)
+bool CFlirOneControl::CopyColorMap(uint8_t R[CFlirOneReceiver::COLOR_MAP_UNIT],uint8_t G[CFlirOneReceiver::COLOR_MAP_UNIT],uint8_t B[CFlirOneReceiver::COLOR_MAP_UNIT],uint32_t size)
 {
  CRAIICMutex cRAIICMutex(&sProtected.cMutex);
  {

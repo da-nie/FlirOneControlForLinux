@@ -25,10 +25,6 @@
 //----------------------------------------------------------------------------------------------------
 CLabel_ImageArea::CLabel_ImageArea(uint32_t width,uint32_t height,QWidget *parent):QLabel(parent)
 {
- //зададим размеры окна    
- setGeometry(0,0,parent->width(),parent->height());
- setMaximumSize(parent->width(),parent->height());
- setMinimumSize(parent->width(),parent->height());
  qImage=QImage(width,height,QImage::Format_RGBA8888);
  for(size_t y=0;y<height;y++)
  {
@@ -53,9 +49,15 @@ CLabel_ImageArea::~CLabel_ImageArea()
 //----------------------------------------------------------------------------------------------------
 void CLabel_ImageArea::paintEvent(QPaintEvent *qPaintEvent_Ptr)
 {
+ setGeometry(0,0,parentWidget()->width(),parentWidget()->height());
+ setMaximumSize(parentWidget()->width(),parentWidget()->height());
+ setMinimumSize(parentWidget()->width(),parentWidget()->height());
+
  QLabel::paintEvent(qPaintEvent_Ptr); 
  QPixmap qPixmap=QPixmap::fromImage(qImage); 
- setPixmap(qPixmap.scaled(this->width(),this->height(),Qt::KeepAspectRatio));
+// setPixmap(qPixmap.scaled(this->width(),this->height(),Qt::KeepAspectRatio));
+ setPixmap(qPixmap.scaled(this->width(),this->height()));
+
 }
 //****************************************************************************************************
 //открытые функции

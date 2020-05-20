@@ -27,22 +27,12 @@
 //----------------------------------------------------------------------------------------------------
 CFlirOneReceiver::CFlirOneReceiver(void)
 { 
- size_t n;
- ThermalImage=new uint16_t[THERMAL_IMAGE_SIZE_SHORT];
- ColorImage=new uint32_t[COLOR_IMAGE_SIZE_LONG];
- VideoImage=new uint32_t[VIDEO_IMAGE_SIZE_LONG];
+ ThermalImage.resize(THERMAL_IMAGE_SIZE,0);
+ ColorImage.resize(COLOR_IMAGE_SIZE,0xFF808080);
+ VideoImage.resize(VIDEO_IMAGE_SIZE,0xFF808080);
 
- for(n=0;n<IMAGE_WIDTH*IMAGE_HEIGHT;n++)
- {
-  ThermalImage[n]=0x00;
-  ColorImage[n]=0xFF808080;
- }
- for(n=0;n<VIDEO_WIDTH*VIDEO_HEIGHT;n++) VideoImage[n]=0xFF808080;
-
- cRingBuffer_Ptr=new CRingBuffer(IMAGE_BUFFER_SIZE);
-
+ cRingBuffer_Ptr.reset(new CRingBuffer(IMAGE_BUFFER_SIZE));
  FrameIndex=0;
-
  ShowVideo=false;
 }
 //----------------------------------------------------------------------------------------------------
@@ -50,10 +40,6 @@ CFlirOneReceiver::CFlirOneReceiver(void)
 //----------------------------------------------------------------------------------------------------
 CFlirOneReceiver::~CFlirOneReceiver()
 {
- delete[](ThermalImage);
- delete[](ColorImage);
- delete[](VideoImage);
- delete(cRingBuffer_Ptr);
 }
 //****************************************************************************************************
 //закрытые функции
@@ -278,47 +264,6 @@ bool CFlirOneReceiver::CreateImage(uint8_t *buffer,uint32_t size)
      delete[](bmp_buffer);
     }
    }
- /*
-   //сохраняем jpg-картинку, для чего создаём поток
-   IStream *pStream=NULL;
-   if (SUCCEEDED(CreateStreamOnHGlobal(NULL,true,&pStream)))
-   {
-    for(uint32_t n=0;n<sHeader.JpgSize;n++)
-    {
-     uint8_t b;
-     if (cRingBuffer_Ptr->PopByte(&b)==false)
-     {
-      JPGImage.clear();
-      ok=false;
-      break;
-     }
-     pStream->Write(&b,1,0);//записываем в поток наши данные
-     JPGImage.push_back(b);
-    }
-    if (ok==true)
-    {
-     //создаём изображение
-     Bitmap bitmap(pStream,0);
-     //копируем данные изображения в массив
-     int32_t width=bitmap.GetWidth();
-     int32_t height=bitmap.GetHeight();
-     for(int32_t x=0;x<width;x++)
-     {
-      for(int32_t y=0;y<height;y++)
-      {
-       Color color;
-       bitmap.GetPixel(x,y,&color);
-       uint32_t offset=(width-1-x)*ORIGINAL_VIDEO_HEIGHT+y;
-       uint32_t r=color.GetRed();
-       uint32_t g=color.GetGreen();
-       uint32_t b=color.GetBlue();
-       VideoImage[offset]=b|(g<<8)|(r<<16)|(0xFF<<24);
-      }
-     }
-    }
-    pStream->Release();    
-   }
-   */
   }
  }
 
@@ -339,7 +284,7 @@ bool CFlirOneReceiver::CreateImage(uint8_t *buffer,uint32_t size)
     int32_t offset=x+y*ORIGINAL_IMAGE_WIDTH;
     int32_t value=ThermalImage[offset];
     value-=min;
-    value=(value*255)/delta;
+    value=(value*MAX_COLOR_INDEX)/delta;
     offset=x+y*ORIGINAL_IMAGE_WIDTH;
     value&=0xff;
     uint32_t color=0;
@@ -384,32 +329,29 @@ bool CFlirOneReceiver::LoadColorMap(const std::string &filename)
 //----------------------------------------------------------------------------------------------------
 //скопировать раскрашенное изображение в буфер
 //----------------------------------------------------------------------------------------------------
-bool CFlirOneReceiver::CopyColorImage(uint32_t* image_ptr,uint32_t size,uint32_t &index)
+bool CFlirOneReceiver::CopyColorImage(std::vector<uint32_t> &image,uint32_t &index)
 {
- if (size<COLOR_IMAGE_SIZE_LONG) return(false);//буфер слишком мал
  index=FrameIndex;
- memcpy(image_ptr,ColorImage,COLOR_IMAGE_SIZE_LONG*sizeof(uint32_t));
+ image=ColorImage;
  return(true);
 }
 //----------------------------------------------------------------------------------------------------
 //скопировать тепловое изображение в буфер
 //----------------------------------------------------------------------------------------------------
-bool CFlirOneReceiver::CopyThermalImage(uint16_t *image_ptr,uint32_t size,uint32_t &index)
+bool CFlirOneReceiver::CopyThermalImage(std::vector<uint16_t> &image,uint32_t &index)
 {
- if (size<THERMAL_IMAGE_SIZE_SHORT) return(false);//буфер слишком мал
  index=FrameIndex;
- memcpy(image_ptr,ThermalImage,THERMAL_IMAGE_SIZE_SHORT*sizeof(uint16_t));
+ image=ThermalImage;
  return(true);
 }
 //----------------------------------------------------------------------------------------------------
 //скопировать изображение с видеокамеры в буфер
 //----------------------------------------------------------------------------------------------------
-bool CFlirOneReceiver::CopyVideoImage(uint32_t *image_ptr,uint32_t size,uint32_t &index)
+bool CFlirOneReceiver::CopyVideoImage(std::vector<uint32_t> &image,uint32_t &index)
 {
  if (ShowVideo==false) return(false);
- if (size<VIDEO_IMAGE_SIZE_LONG) return(false);//буфер слишком мал
  index=FrameIndex;
- memcpy(image_ptr,VideoImage,VIDEO_IMAGE_SIZE_LONG*sizeof(uint32_t));
+ image=VideoImage;
  return(true);
 }
 //----------------------------------------------------------------------------------------------------
@@ -425,7 +367,7 @@ bool CFlirOneReceiver::CopyJPGImage(std::vector<uint8_t> &vector_jpg,uint32_t &i
 //---------------------------------------------------------------------------
 //скопировать палитру
 //---------------------------------------------------------------------------
-bool CFlirOneReceiver::CopyColorMap(uint8_t R[256],uint8_t G[256],uint8_t B[256],uint32_t size)
+bool CFlirOneReceiver::CopyColorMap(uint8_t R[COLOR_MAP_UNIT],uint8_t G[COLOR_MAP_UNIT],uint8_t B[COLOR_MAP_UNIT],uint32_t size)
 {
  if (size<COLOR_MAP_UNIT) return(false);//буфер слишком мал
  for(int32_t n=0;n<COLOR_MAP_UNIT;n++)
