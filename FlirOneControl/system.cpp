@@ -16,10 +16,9 @@
 //----------------------------------------------------------------------------------------------------
 //создать список файлов директории
 //----------------------------------------------------------------------------------------------------
-void CreateFileList(const std::string &path,std::vector<std::string> &vector_file_name,std::vector<std::string> &vector_file_name_without_path)
+void CreateFileList(const std::string &path,std::vector<std::string> &vector_file_name)
 {
- vector_file_name.clear();
- vector_file_name_without_path.clear();
+ vector_file_name.clear(); 
  //сканируем файлы каталога
  DIR *dir;
  dirent *d_ptr;
@@ -51,8 +50,8 @@ void CreateFileList(const std::string &path,std::vector<std::string> &vector_fil
     closedir(dir_tmp);
     continue;
    }
-   vector_file_name.push_back(filename);
-   vector_file_name_without_path.push_back(d_ptr->d_name);
+   //vector_file_name.push_back(filename);
+   vector_file_name.push_back(d_ptr->d_name);
   }
   closedir(dir);
  }
@@ -61,10 +60,9 @@ void CreateFileList(const std::string &path,std::vector<std::string> &vector_fil
 //----------------------------------------------------------------------------------------------------
 //создать список каталогов директории
 //----------------------------------------------------------------------------------------------------
-void CreateDirectoryList(const std::string &path,std::vector<std::string> &vector_directory_name,std::vector<std::string> &vector_directory_name_without_path)
+void CreateDirectoryList(const std::string &path,std::vector<std::string> &vector_directory_name)
 {
- vector_directory_name.clear();
- vector_directory_name_without_path.clear();
+ vector_directory_name.clear(); 
  //сканируем директории каталога
  DIR *dir;
  dirent *d_ptr;
@@ -93,8 +91,8 @@ void CreateDirectoryList(const std::string &path,std::vector<std::string> &vecto
    dir_tmp=opendir(filename.c_str());
    if (dir_tmp==NULL) continue;//это файл,а не каталог
    closedir(dir_tmp);
-   vector_directory_name.push_back(filename);
-   vector_directory_name_without_path.push_back(d_ptr->d_name);
+   //vector_directory_name.push_back(filename);
+   vector_directory_name.push_back(d_ptr->d_name);
   }
   closedir(dir);
  }
@@ -126,7 +124,7 @@ void PauseInMs(size_t ms)
  usleep(ms*1000);
 }
 //----------------------------------------------------------------------------------------------------
-//пауза вмикросекундах
+//пауза в микросекундах
 //----------------------------------------------------------------------------------------------------
 void PauseInUs(size_t us)
 {

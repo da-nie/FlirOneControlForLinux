@@ -294,10 +294,11 @@ bool CMainWindow::MaxTemperControl(float t)
 //----------------------------------------------------------------------------------------------------
 void CMainWindow::FindPalette(void)
 {
+ std::string path;
+ path="."+GetPathDivider()+"Palette";
  ui->comboBox_Palette->clear();
  std::vector<std::string> vector_file_name;
- std::vector<std::string> vector_file_name_without_path;
- CreateFileList("./Palette",vector_file_name,vector_file_name_without_path);
+ CreateFileList(path,vector_file_name);
  vector_PaletteFileName.clear();
  static const size_t MIN_FILE_NAME_SIZE=4;//минимальная длина имени файла
  for(size_t n=0;n<vector_file_name.size();n++)
@@ -309,8 +310,8 @@ void CMainWindow::FindPalette(void)
   if (file_name[length-2]!='a' && file_name[length-1]!='A') continue;
   if (file_name[length-3]!='p' && file_name[length-1]!='P') continue;
   if (file_name[length-4]!='.') continue;
-  vector_PaletteFileName.push_back(file_name);
-  ui->comboBox_Palette->addItem(vector_file_name_without_path[n].c_str());
+  vector_PaletteFileName.push_back(path+GetPathDivider()+file_name);
+  ui->comboBox_Palette->addItem(vector_file_name[n].c_str());
  }
  if (vector_file_name.size()>0) ui->comboBox_Palette->setCurrentIndex(0);
 }
